@@ -304,7 +304,7 @@ public static int getTransactionBatchId() {
         System.out.println("BEFORE API CALL ====  " + jSONObject);
         
         HttpResponse<JsonNode> batchHeaderRespone = Unirest
-                .post("http://192.168.205.17:7101/SBProject/RubikonProxyRestService/BatchHeaderUpload")
+                .post("https://172.16.47.3/SBProject/RubikonProxyRestService/BatchHeaderUpload")
                 .header("accept", "application/json")
                 .header("Content-Type", "application/json")
                 .body(jSONObject.toString())
@@ -332,7 +332,7 @@ private static void sendBatchItem(String batchItemJsonData) {
         System.out.println("BEFORE API CALL ====  " + jSONObject);
         SSLFix.execute();
         HttpResponse<JsonNode> batchItemRespone = Unirest
-                .post("http:/192.168.205.17:7101/SBProject/RubikonProxyRestService/BatchItemUpload")
+                .post("https://172.16.47.3/SBProject/RubikonProxyRestService/BatchItemUpload")
                 .header("accept", "application/json")
                 .header("Content-Type", "application/json")
                 .body(jSONObject)
