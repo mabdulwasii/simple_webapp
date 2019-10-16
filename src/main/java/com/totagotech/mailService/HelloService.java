@@ -10,7 +10,6 @@ import javax.ws.rs.core.Response;
 
 @Path("/hello")
 public class HelloService {
-
     @GET
     @Path("{clientName}")
     @Produces(MediaType.TEXT_PLAIN)

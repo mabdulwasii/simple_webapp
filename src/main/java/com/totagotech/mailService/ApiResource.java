@@ -58,6 +58,17 @@ public class ApiResource {
     @Context
     private UriInfo context;
 
+    // Generate random integers in range 0 to 999
+    static Date date= new Date();
+    static long time = date.getTime();
+    static String text = String.valueOf(time);
+
+    static String numbers = text.substring(Math.max(0, text.length() - 7));
+
+    static int trnsactionBatchItemId = Integer.parseInt(text.substring(Math.max(0, text.length() - 6)));
+
+
+
     /**
      * Creates a new instance of ApiResource
      */
@@ -126,7 +137,10 @@ public class ApiResource {
         System.out.println("Creating excel file...");
         try (Workbook workbook = new XSSFWorkbook()) {
 
-            int transactionBatchId = getTransactionBatchId();
+            String nextRundate = String.valueOf(results.get(0).getTranDt());
+            String valueRundate = String.valueOf(results.get(0).getValueDt());
+            int transactionBatchId = getTransactionBatchId(nextRundate, valueRundate);
+            System.out.println("TRANSACTION BATCH CODE ====" + transactionBatchId);
 
             CreationHelper createHelper = workbook.getCreationHelper();
 
@@ -159,7 +173,7 @@ public class ApiResource {
 
                 BatchItemClass batchItemClass = new BatchItemClass();
                 BatchItemRequest batchItemRequest = new BatchItemRequest();
-                batchItemRequest.setTransactionBatchItemId(3);
+                batchItemRequest.setTransactionBatchItemId(trnsactionBatchItemId);
                 batchItemRequest.setTransactionBatchId(transactionBatchId);
                 batchItemRequest.setEventCode(result.getTxnCode());
                 batchItemRequest.setAccountNumber(result.getAcctNo());
@@ -285,19 +299,11 @@ public class ApiResource {
 
         System.out.println("MailServiceResource === File created in url " + filePath);
     }
-public static int getTransactionBatchId() {
+public static int getTransactionBatchId(String nextRundate, String valueRundate) {
 
         SSLFix.execute();
-       //TODO Random transactionBatchCode generation
 
-    // Generate random integers in range 0 to 999
-    Date date= new Date();
-    long time = date.getTime();
-    String text = String.valueOf(time);
-
-    String numbers = text.substring(Math.max(0, text.length() - 7));
-
-    String batchHeaderRequestBody = "{\"Request\":{\"TransactionBatchCode\":\""+numbers+"\",\"TransactionBatchDescription\":\"Budescription\",\"BusinessUnitCode\":\"001\",\"NextRunDate\":\"12/08/2019\",\"EffectiveDate\":\"12/09/2019\",\"UserId\":\"SYSTEM\",\"CreatedBy\":\"SYSTEM\"}}";
+    String batchHeaderRequestBody = "{\"Request\":{\"TransactionBatchCode\":\""+numbers+"\",\"TransactionBatchDescription\":\"Budescription " + numbers +"\",\"BusinessUnitCode\":\"001\",\"NextRunDate\":\" "+ nextRundate + "\",\"EffectiveDate\":\" "+ valueRundate + "\",\"UserId\":\"SYSTEM\",\"CreatedBy\":\"SYSTEM\"}}";
 
         JSONObject jSONObject = new JSONObject(batchHeaderRequestBody);
         

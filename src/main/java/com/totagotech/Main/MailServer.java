@@ -54,7 +54,6 @@ public class MailServer {
             email.send();
             System.out.println("Message is Sent");
         } catch (final EmailException e) {
-            // TODO Auto-generated catch block
             System.out.println(e.getCause());
             System.out.println(e.getMessage());
             System.out.println("message is not sent");
