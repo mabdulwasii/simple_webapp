@@ -52,6 +52,7 @@ import org.json.JSONObject;
 public class ApiResource {
 
      private MailServer mailServer;
+     private static int count = 1;
 
     String[] shortMonths = new DateFormatSymbols().getShortMonths();
 
@@ -124,7 +125,7 @@ public class ApiResource {
         String name = "Net to bank -" + month + ".xlsx";
         writeNetToBankToXcel(results, path);
 
-        mailServer = new MailServer("dele.fasuyi@holmenconsult.com", "Kindly find the attached Net to Bank excel file", "NET TO BANK EXCEL file", path, desc, name);
+        mailServer = new MailServer("mabdulwasii@gmail.com", "Kindly find the attached Net to Bank excel file", "NET TO BANK EXCEL file", path, desc, name);
 
         return Response.ok(data).build();
     }
@@ -304,7 +305,11 @@ public class ApiResource {
 public static int getTransactionBatchId() {
 
         SSLFix.execute();
-    String batchHeaderRequestBody = "{\"Request\":{\"TransactionBatchCode\":\"G9E1E123\",\"TransactionBatchDescription\":\"fdfdgd\",\"BusinessUnitCode\":\"001\",\"NextRunDate\":\"12/08/2019\",\"EffectiveDate\":\"12/09/2019\",\"UserId\":\"SYSTEM\",\"CreatedBy\":\"SYSTEM\"}}";
+
+        ++count;
+        String  batchCode = String.format("%05d%n", count);
+    System.out.println(" TransactionBatchCode:  " + batchCode);
+    String batchHeaderRequestBody = "{\"Request\":{\"TransactionBatchCode\":\"" + batchCode + "\",\"TransactionBatchDescription\":\"fdfdgd\",\"BusinessUnitCode\":\"001\",\"NextRunDate\":\"12/08/2019\",\"EffectiveDate\":\"12/09/2019\",\"UserId\":\"SYSTEM\",\"CreatedBy\":\"SYSTEM\"}}";
 
     JSONObject jSONObject = new JSONObject(batchHeaderRequestBody);
         
@@ -338,12 +343,18 @@ public static int getTransactionBatchId() {
 
         System.out.println("BEFORE API CALL ====  " + jSONObject);
         SSLFix.execute();
-        HttpResponse<JsonNode> batchItemRespone = Unirest
-                .post("http://172.16.47.3/SBProject/RubikonProxyRestService/BatchItemUpload")
-                .header("accept", "application/json")
-                .header("Content-Type", "application/json")
-                .body(jSONObject)
-                .asJson();
+        HttpResponse<JsonNode> batchItemRespone = null;
+        try {
+            batchItemRespone = Unirest
+                    .post("http://172.16.47.3/SBProject/RubikonProxyRestService/BatchItemUpload")
+                    .header("accept", "application/json")
+                    .header("Content-Type", "application/json")
+                    .body(jSONObject)
+                    .asJson();
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("SEND BATCH ITEM FAILED: " + e.getMessage());
+        }
 
         System.out.println("AFTER API CALL " + batchItemRespone.getBody());
 
