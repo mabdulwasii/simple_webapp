@@ -59,14 +59,14 @@ public class ApiResource {
     private UriInfo context;
 
     // Generate random integers in range 0 to 999
-    static Date date= new Date();
+    /*static Date date= new Date();
     static long time = date.getTime();
     static String text = String.valueOf(time);
 
     static String numbers = text.substring(Math.max(0, text.length() - 7));
 
     static int trnsactionBatchItemId = Integer.parseInt(text.substring(Math.max(0, text.length() - 6)));
-
+*/
 
 
     /**
@@ -82,7 +82,7 @@ public class ApiResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response recievePayrollData(String data) throws IOException, EmailException {
 
-        System.out.println("MailServer recievPayrollData");
+        System.out.println("MailServer receive payroll data");
         System.out.println(data);
 
         Payroll payroll = new Gson().fromJson(data, Payroll.class);
@@ -98,7 +98,7 @@ public class ApiResource {
         String name = "Payroll-" + month + ".xlsx";
         writePayrollToXcel(results, path);
 
-        mailServer = new MailServer("dele.fasuyi@holmenconsult.com", "Kindly find the attached Payroll excel file", "PAYROLL EXCEL File", path, desc, name);
+        mailServer = new MailServer("mabdulwasii@gmail.com", "Kindly find the attached Payroll excel file", "PAYROLL EXCEL File", path, desc, name);
 
         return Response.ok(data).build();
     }
@@ -137,17 +137,18 @@ public class ApiResource {
         System.out.println("Creating excel file...");
         try (Workbook workbook = new XSSFWorkbook()) {
 
-            String nextRundate = String.valueOf(results.get(0).getTranDt());
+            int transactionBatchId = getTransactionBatchId();
+
+            /*String nextRundate = String.valueOf(results.get(0).getTranDt());
             String valueRundate = String.valueOf(results.get(0).getValueDt());
             int transactionBatchId = getTransactionBatchId(nextRundate, valueRundate);
-            System.out.println("TRANSACTION BATCH CODE ====" + transactionBatchId);
+            System.out.println("TRANSACTION BATCH CODE ====" + transactionBatchId);*/
 
             CreationHelper createHelper = workbook.getCreationHelper();
 
             Sheet sheet = workbook.createSheet("Payroll");
 
             Font headerFont = workbook.createFont();
-
             headerFont.setBold(true);
             headerFont.setColor(IndexedColors.BLUE.getIndex());
 
@@ -173,7 +174,7 @@ public class ApiResource {
 
                 BatchItemClass batchItemClass = new BatchItemClass();
                 BatchItemRequest batchItemRequest = new BatchItemRequest();
-                batchItemRequest.setTransactionBatchItemId(trnsactionBatchItemId);
+                batchItemRequest.setTransactionBatchItemId(3);
                 batchItemRequest.setTransactionBatchId(transactionBatchId);
                 batchItemRequest.setEventCode(result.getTxnCode());
                 batchItemRequest.setAccountNumber(result.getAcctNo());
@@ -299,18 +300,18 @@ public class ApiResource {
 
         System.out.println("MailServiceResource === File created in url " + filePath);
     }
-public static int getTransactionBatchId(String nextRundate, String valueRundate) {
+
+public static int getTransactionBatchId() {
 
         SSLFix.execute();
+    String batchHeaderRequestBody = "{\"Request\":{\"TransactionBatchCode\":\"G9E1E123\",\"TransactionBatchDescription\":\"fdfdgd\",\"BusinessUnitCode\":\"001\",\"NextRunDate\":\"12/08/2019\",\"EffectiveDate\":\"12/09/2019\",\"UserId\":\"SYSTEM\",\"CreatedBy\":\"SYSTEM\"}}";
 
-    String batchHeaderRequestBody = "{\"Request\":{\"TransactionBatchCode\":\""+numbers+"\",\"TransactionBatchDescription\":\"Budescription " + numbers +"\",\"BusinessUnitCode\":\"001\",\"NextRunDate\":\" "+ nextRundate + "\",\"EffectiveDate\":\" "+ valueRundate + "\",\"UserId\":\"SYSTEM\",\"CreatedBy\":\"SYSTEM\"}}";
-
-        JSONObject jSONObject = new JSONObject(batchHeaderRequestBody);
+    JSONObject jSONObject = new JSONObject(batchHeaderRequestBody);
         
         System.out.println("BEFORE API CALL ====  " + jSONObject);
         
         HttpResponse<JsonNode> batchHeaderRespone = Unirest
-                .post("https://172.16.47.3/SBProject/RubikonProxyRestService/BatchHeaderUpload")
+                .post("http://172.16.47.3/SBProject/RubikonProxyRestService/BatchHeaderUpload")
                 .header("accept", "application/json")
                 .header("Content-Type", "application/json")
                 .body(jSONObject.toString())
@@ -331,21 +332,21 @@ public static int getTransactionBatchId(String nextRundate, String valueRundate)
 
     }
 
-private static void sendBatchItem(String batchItemJsonData) {
-        
+    private static void sendBatchItem(String batchItemJsonData) {
+
         JSONObject jSONObject = new JSONObject(batchItemJsonData);
-        
+
         System.out.println("BEFORE API CALL ====  " + jSONObject);
         SSLFix.execute();
         HttpResponse<JsonNode> batchItemRespone = Unirest
-                .post("https://172.16.47.3/SBProject/RubikonProxyRestService/BatchItemUpload")
+                .post("http://172.16.47.3/SBProject/RubikonProxyRestService/BatchItemUpload")
                 .header("accept", "application/json")
                 .header("Content-Type", "application/json")
                 .body(jSONObject)
                 .asJson();
-        
+
         System.out.println("AFTER API CALL " + batchItemRespone.getBody());
-        
+
         System.out.println("SEND BATCH ITEM ERROR MSG " + batchItemRespone.getParsingError());
 
         System.out.println("sendBatchItem ======== Response Code = " + batchItemRespone.getStatus()

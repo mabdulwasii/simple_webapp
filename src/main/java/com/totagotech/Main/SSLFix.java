@@ -25,31 +25,31 @@ public class SSLFix {
 
     public static void execute() {
         TrustManager[] trustAllCerts = new TrustManager[]{
-            new X509ExtendedTrustManager() {
-                public X509Certificate[] getAcceptedIssuers() {
-                    return null;
-                }
+                new X509ExtendedTrustManager() {
+                    public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                        return null;
+                    }
 
-                @Override
-                public void checkClientTrusted(X509Certificate[] arg0, String arg1)
-                        throws CertificateException {
-                }
+                    @Override
+                    public void checkClientTrusted(X509Certificate[] arg0, String arg1)
+                            throws CertificateException {
+                    }
 
-                @Override
-                public void checkServerTrusted(X509Certificate[] arg0, String arg1)
-                        throws CertificateException {
-                }
+                    @Override
+                    public void checkServerTrusted(X509Certificate[] arg0, String arg1)
+                            throws CertificateException {
+                    }
 
-                @Override
-                public void checkClientTrusted(X509Certificate[] xcs, String string, String string1, String string2) throws CertificateException {
-                    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-                }
+                    @Override
+                    public void checkClientTrusted(X509Certificate[] xcs, String string, String string1, String string2) throws CertificateException {
+                        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                    }
 
-                @Override
-                public void checkServerTrusted(X509Certificate[] xcs, String string, String string1, String string2) throws CertificateException {
-                    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                    @Override
+                    public void checkServerTrusted(X509Certificate[] xcs, String string, String string1, String string2) throws CertificateException {
+                        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                    }
                 }
-            }
         };
         SSLContext sc = null;
         try {
