@@ -56,7 +56,7 @@ public class ApiResource {
 
 
     private MailServer mailServer;
-     private static int count = 30;
+     private static int count = 41;
 
     String[] shortMonths = new DateFormatSymbols().getShortMonths();
 
