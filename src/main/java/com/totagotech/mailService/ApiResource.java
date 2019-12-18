@@ -148,11 +148,6 @@ public class ApiResource {
 
             int transactionBatchId = getTransactionBatchId();
 
-            /*String nextRundate = String.valueOf(results.get(0).getTranDt());
-            String valueRundate = String.valueOf(results.get(0).getValueDt());
-            int transactionBatchId = getTransactionBatchId(nextRundate, valueRundate);
-            System.out.println("TRANSACTION BATCH CODE ====" + transactionBatchId);*/
-
             CreationHelper createHelper = workbook.getCreationHelper();
 
             Sheet sheet = workbook.createSheet("Payroll");
