@@ -41,9 +41,9 @@ public class MailServer {
             email.setSmtpPort(587);
             email.setStartTLSEnabled(true);
             email.setStartTLSRequired(true);
-            email.setAuthentication("akinrindeolakazeem@gmail.com", "1975rashy!");
+            email.setAuthentication("princehardetuneji@gmail.com", "#AbdulwasiuIbrahim@");
             email.addTo(mailAddress);
-            email.setFrom("akinrindeolakazeem@gmail.com", "BOI ESB project");
+            email.setFrom("mabdulwasii@gmail.com", "BOI ESB project");
             email.setSubject(mailTitle);
             email.setMsg(message);
 

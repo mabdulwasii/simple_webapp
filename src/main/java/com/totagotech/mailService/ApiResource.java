@@ -17,6 +17,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.DateFormatSymbols;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
@@ -52,7 +54,7 @@ import org.json.JSONObject;
 public class ApiResource {
 
      private MailServer mailServer;
-     private static int count = 1;
+     private static int count = 30;
 
     String[] shortMonths = new DateFormatSymbols().getShortMonths();
 
@@ -95,11 +97,13 @@ public class ApiResource {
         String desc = "Payroll excel file";
         Calendar cal = Calendar.getInstance();
         int monthNumber = cal.get(Calendar.MONTH);
-        String month = shortMonths[monthNumber - 1];
+        String month = shortMonths[monthNumber];
         String name = "Payroll-" + month + ".xlsx";
         writePayrollToXcel(results, path);
 
-        mailServer = new MailServer("mabdulwasii@gmail.com", "Kindly find the attached Payroll excel file", "PAYROLL EXCEL File", path, desc, name);
+        //mailServer = new MailServer("sikolomi@boi.ng", "Kindly find the attached Payroll excel file", "PAYROLL EXCEL File", path, desc, name);
+        //mailServer = new MailServer("mabdulwasii@gmail.com", "Kindly find the attached Payroll excel file", "PAYROLL EXCEL File", path, desc, name);
+        mailServer = new MailServer("dele.fasuyi@holmenconsult.com", "Kindly find the attached Payroll excel file", "PAYROLL EXCEL File", path, desc, name);
 
         return Response.ok(data).build();
     }
@@ -121,17 +125,19 @@ public class ApiResource {
         String desc = "Payroll excel file";
         Calendar cal = Calendar.getInstance();
         int monthNumber = cal.get(Calendar.MONTH);
-        String month = shortMonths[monthNumber - 1];
+        String month = shortMonths[monthNumber  ];
         String name = "Net to bank -" + month + ".xlsx";
         writeNetToBankToXcel(results, path);
 
-        mailServer = new MailServer("mabdulwasii@gmail.com", "Kindly find the attached Net to Bank excel file", "NET TO BANK EXCEL file", path, desc, name);
+        //mailServer = new MailServer("sikolomi@boi.ng", "Kindly find the attached Net to Bank excel file", "NET TO BANK EXCEL file", path, desc, name);
+        //mailServer = new MailServer("mabdulwasii@gmail.com", "Kindly find the attached Net to Bank excel file", "NET TO BANK EXCEL file", path, desc, name);
+        mailServer = new MailServer("dele.fasuyi@holmenconsult.com", "Kindly find the attached Net to Bank excel file", "NET TO BANK EXCEL file", path, desc, name);
 
         return Response.ok(data).build();
     }
     
     private static void writePayrollToXcel(List<Result> results, String filePath) throws IOException {
-        String[] COLUMNs = {"tran_dt", "value_dt", "origin_bus_unit", "acct_bus_unit", "acct_bus_unit",
+        String[] COLUMNs = {"tran_dt", "value_dt", "origin_bus_unit", "acct_bus_unit",
             "svce_channel", "acct_no", "txn_code", "dr_cr", "tran_ref", "narrative",
             "txn_ccy", "acct_ccy", "acct_amt", "chq_no"};
 
@@ -175,11 +181,11 @@ public class ApiResource {
 
                 BatchItemClass batchItemClass = new BatchItemClass();
                 BatchItemRequest batchItemRequest = new BatchItemRequest();
-                batchItemRequest.setTransactionBatchItemId(3);
+                batchItemRequest.setTransactionBatchItemId(transactionBatchId - 23);
                 batchItemRequest.setTransactionBatchId(transactionBatchId);
                 batchItemRequest.setEventCode(result.getTxnCode());
                 batchItemRequest.setAccountNumber(result.getAcctNo());
-                batchItemRequest.setTransactionCurrencyCode(result.getTxnCode());
+                batchItemRequest.setTransactionCurrencyCode(result.getTxnCcy());
                 batchItemRequest.setTransactionAmount(result.getAcctAmt());
                 batchItemRequest.setNarrative(result.getNarrative());
                 batchItemRequest.setReference(result.getTranRef());
@@ -188,21 +194,22 @@ public class ApiResource {
                 batchItemRequest.setAccountCurrencyAmount(result.getAcctAmt());
                 batchItemRequest.setAccountCurrencyCode(result.getAcctCcy());
                 batchItemRequest.setValueDate(result.getValueDt());
-                batchItemRequest.setBICCode("NA");
+//                batchItemRequest.setBICCode("999");
                 batchItemRequest.setChequeNumber(result.getChqNo());
-                batchItemRequest.setItemTypeCode("0");
-                batchItemRequest.setTrackingNumber(10);
-                batchItemRequest.setPayerAccountNumber("NA");
-                batchItemRequest.setBeneficiaryId(10);
-                batchItemRequest.setFundTransferTypeCode("NA");
-                batchItemRequest.setPaymentMethodCode("NA");
-                batchItemRequest.setSettlementAccounNumber("NA");
+//                batchItemRequest.setItemTypeCode("836");
+//                batchItemRequest.setTrackingNumber(0);
+                batchItemRequest.setPayerAccountNumber(result.getAcctNo());
+//                batchItemRequest.setBeneficiaryId(0);
+//                batchItemRequest.setFundTransferTypeCode("NIBSS2");
+//                batchItemRequest.setPaymentMethodCode("A");
+//                batchItemRequest.setSettlementAccounNumber("5000017784");
                 batchItemRequest.setUserId("SYSTEM");
                 batchItemRequest.setCreatedBy("SYSTEM");
 
                 batchItemClass.setRequest(batchItemRequest);
                 String batchItemJsonData = new Gson().toJson(batchItemClass);
 
+                System.out.println(batchItemJsonData);
                 sendBatchItem(batchItemJsonData);
 
                 row.createCell(0).setCellValue(result.getTranDt());
@@ -307,14 +314,42 @@ public static int getTransactionBatchId() {
         SSLFix.execute();
 
         ++count;
-        String  batchCode = String.format("%05d%n", count);
+        String  batchCode = String.format("%05d", count);
     System.out.println(" TransactionBatchCode:  " + batchCode);
-    String batchHeaderRequestBody = "{\"Request\":{\"TransactionBatchCode\":\"" + batchCode + "\",\"TransactionBatchDescription\":\"fdfdgd\",\"BusinessUnitCode\":\"001\",\"NextRunDate\":\"12/08/2019\",\"EffectiveDate\":\"12/09/2019\",\"UserId\":\"SYSTEM\",\"CreatedBy\":\"SYSTEM\"}}";
+
+    //String batchHeaderRequestBody = "{\"Request\":{\"TransactionBatchCode\":\"" + batchCode + "\",\"TransactionBatchDescription\":\"fdfdgd\",\"BusinessUnitCode\":\"001\",\"NextRunDate\":\"12/08/2019\",\"EffectiveDate\":\"12/09/2019\",\"UserId\":\"SYSTEM\",\"CreatedBy\":\"SYSTEM\"}}";
+    LocalDate date = LocalDate.now();
+    DateTimeFormatter newPattern = DateTimeFormatter.ofPattern("dd/MM/yy");
+    String useDate = date.format(newPattern);
+
+    String batchHeaderRequestBody = "    {\n" +
+            "            \n" +
+            "              \"Request\" : {\n" +
+            "            \n" +
+            "                \"TransactionBatchCode\" : \""+ batchCode + "\",\n" +
+            "            \n" +
+            "                \"TransactionBatchDescription\" : \"New batch code " + batchCode + " \" ,\n" +
+            "            \n" +
+            "                \"BusinessUnitCode\" : \"001\",\n" +
+            "            \n" +
+            "                \"NextRunDate\" : \"" + useDate +"\",\n" +
+            "            \n" +
+            "                \"EffectiveDate\" : \"" + useDate + "\",\n" +
+            "            \n" +
+            "                \"UserId\" : \"SYSTEM\",\n" +
+            "            \n" +
+            "                \"CreatedBy\" : \"SYSTEM\"\n" +
+            "            \n" +
+            "              }\n" +
+            "            \n" +
+            "            }";
+
+    System.out.println("BATCH HEADER BODY ====  " + batchHeaderRequestBody);
 
     JSONObject jSONObject = new JSONObject(batchHeaderRequestBody);
-        
-        System.out.println("BEFORE API CALL ====  " + jSONObject);
-        
+
+    System.out.println("BEFORE API CALL ====  " + jSONObject);
+
         HttpResponse<JsonNode> batchHeaderRespone = Unirest
                 .post("http://172.16.47.3/SBProject/RubikonProxyRestService/BatchHeaderUpload")
                 .header("accept", "application/json")
@@ -323,8 +358,6 @@ public static int getTransactionBatchId() {
                 .asJson();
         
         System.out.println("AFTER API CALL ====  " + batchHeaderRespone.getBody().getObject().getJSONObject("Response"));
-        
-        System.out.println("XXXXXXXXXXInside the get transaction Batch Id " + batchHeaderRespone.getParsingError());
 
         System.out.println("GET TRANSACTION BATCH ID ======== Response Code = " + batchHeaderRespone.getStatus()
                 + " Description ==" + batchHeaderRespone.getStatusText()
@@ -334,7 +367,6 @@ public static int getTransactionBatchId() {
         int transactionBatchId = headerResponse.getTransactionBatchId();
         System.out.println(transactionBatchId);
         return transactionBatchId;
-
     }
 
     private static void sendBatchItem(String batchItemJsonData) {
@@ -354,11 +386,10 @@ public static int getTransactionBatchId() {
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("SEND BATCH ITEM FAILED: " + e.getMessage());
+            System.out.println("SEND BATCH ITEM ERROR MSG " + batchItemRespone.getParsingError());
         }
 
         System.out.println("AFTER API CALL " + batchItemRespone.getBody());
-
-        System.out.println("SEND BATCH ITEM ERROR MSG " + batchItemRespone.getParsingError());
 
         System.out.println("sendBatchItem ======== Response Code = " + batchItemRespone.getStatus()
                 + " Description ==" + batchItemRespone.getStatusText()
