@@ -6,6 +6,7 @@
 package com.totagotech.mailService;
 
 import com.google.gson.Gson;
+import com.totagotech.Main.AppConstant;
 import com.totagotech.Main.MailServer;
 import com.totagotech.Main.SSLFix;
 import com.totagotech.data.BatchItemClass;
@@ -24,10 +25,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.Produces;
-import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.PUT;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import kong.unirest.HttpResponse;
@@ -45,6 +44,8 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.json.JSONObject;
 
+import static com.totagotech.Main.AppConstant.*;
+
 /**
  * REST Web Service
  *
@@ -53,7 +54,8 @@ import org.json.JSONObject;
 @Path("recieve")
 public class ApiResource {
 
-     private MailServer mailServer;
+
+    private MailServer mailServer;
      private static int count = 30;
 
     String[] shortMonths = new DateFormatSymbols().getShortMonths();
@@ -93,7 +95,7 @@ public class ApiResource {
 
         System.out.println(results);
 
-        String path = "C:\\\\mailserver\\payroll.xlsx";
+        String path = AppConstant.PAYROLL_PATH;
         String desc = "Payroll excel file";
         Calendar cal = Calendar.getInstance();
         int monthNumber = cal.get(Calendar.MONTH);
@@ -103,7 +105,7 @@ public class ApiResource {
 
         //mailServer = new MailServer("sikolomi@boi.ng", "Kindly find the attached Payroll excel file", "PAYROLL EXCEL File", path, desc, name);
         //mailServer = new MailServer("mabdulwasii@gmail.com", "Kindly find the attached Payroll excel file", "PAYROLL EXCEL File", path, desc, name);
-        mailServer = new MailServer("dele.fasuyi@holmenconsult.com", "Kindly find the attached Payroll excel file", "PAYROLL EXCEL File", path, desc, name);
+        mailServer = new MailServer(PAYROLL_EMAIL, PAYROLL_MSG, "PAYROLL EXCEL File", path, desc, name);
 
         return Response.ok(data).build();
     }
@@ -121,7 +123,7 @@ public class ApiResource {
         results = example.getResults();
         System.out.println(results);
 
-        String path = "\\mailserver\\netToBank.xlsx";
+        String path = NET_TO_BANK_PATH;
         String desc = "Payroll excel file";
         Calendar cal = Calendar.getInstance();
         int monthNumber = cal.get(Calendar.MONTH);
@@ -131,7 +133,7 @@ public class ApiResource {
 
         //mailServer = new MailServer("sikolomi@boi.ng", "Kindly find the attached Net to Bank excel file", "NET TO BANK EXCEL file", path, desc, name);
         //mailServer = new MailServer("mabdulwasii@gmail.com", "Kindly find the attached Net to Bank excel file", "NET TO BANK EXCEL file", path, desc, name);
-        mailServer = new MailServer("dele.fasuyi@holmenconsult.com", "Kindly find the attached Net to Bank excel file", "NET TO BANK EXCEL file", path, desc, name);
+        mailServer = new MailServer(NET_TO_BANK_EMAIL, NET_TO_BANK_MSG, "NET TO BANK EXCEL file", path, desc, name);
 
         return Response.ok(data).build();
     }
