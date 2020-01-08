@@ -17,6 +17,7 @@ import com.totagotech.data.response.BatchHeaderResponse;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.text.DateFormatSymbols;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -54,9 +55,8 @@ import static com.totagotech.Main.AppConstant.*;
 @Path("recieve")
 public class ApiResource {
 
-
-    private MailServer mailServer;
-     private static int count = 41;
+    public static StringBuilder msg;
+     private static int count = 82;
 
     String[] shortMonths = new DateFormatSymbols().getShortMonths();
 
@@ -87,6 +87,8 @@ public class ApiResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response recievePayrollData(String data) throws IOException, EmailException {
 
+        msg = new StringBuilder(PAYROLL_MSG);
+
         System.out.println("MailServer receive payroll data");
         System.out.println(data);
 
@@ -103,9 +105,13 @@ public class ApiResource {
         String name = "Payroll-" + month + ".xlsx";
         writePayrollToXcel(results, path);
 
+
+
         //mailServer = new MailServer("sikolomi@boi.ng", "Kindly find the attached Payroll excel file", "PAYROLL EXCEL File", path, desc, name);
         //mailServer = new MailServer("mabdulwasii@gmail.com", "Kindly find the attached Payroll excel file", "PAYROLL EXCEL File", path, desc, name);
-        mailServer = new MailServer(PAYROLL_EMAIL, PAYROLL_MSG, "PAYROLL EXCEL File", path, desc, name);
+        new MailServer(PAYROLL_EMAIL, msg.toString(), "PAYROLL EXCEL File", path, desc, name);
+        new MailServer(PAYROLL_EMAIL1, msg.toString(), "PAYROLL EXCEL File", path, desc, name);
+        new MailServer(PAYROLL_EMAIL2, msg.toString(), "PAYROLL EXCEL File", path, desc, name);
 
         return Response.ok(data).build();
     }
@@ -133,7 +139,9 @@ public class ApiResource {
 
         //mailServer = new MailServer("sikolomi@boi.ng", "Kindly find the attached Net to Bank excel file", "NET TO BANK EXCEL file", path, desc, name);
         //mailServer = new MailServer("mabdulwasii@gmail.com", "Kindly find the attached Net to Bank excel file", "NET TO BANK EXCEL file", path, desc, name);
-        mailServer = new MailServer(NET_TO_BANK_EMAIL, NET_TO_BANK_MSG, "NET TO BANK EXCEL file", path, desc, name);
+        new MailServer(NET_TO_BANK_EMAIL, NET_TO_BANK_MSG, "NET TO BANK EXCEL file", path, desc, name);
+        new MailServer(NET_TO_BANK_EMAIL1, NET_TO_BANK_MSG, "NET TO BANK EXCEL file", path, desc, name);
+        new MailServer(NET_TO_BANK_EMAIL2, NET_TO_BANK_MSG, "NET TO BANK EXCEL file", path, desc, name);
 
         return Response.ok(data).build();
     }
@@ -147,6 +155,8 @@ public class ApiResource {
         try (Workbook workbook = new XSSFWorkbook()) {
 
             int transactionBatchId = getTransactionBatchId();
+
+            msg.append(transactionBatchId);
 
             CreationHelper createHelper = workbook.getCreationHelper();
 
@@ -348,13 +358,14 @@ public static int getTransactionBatchId() {
     System.out.println("BEFORE API CALL ====  " + jSONObject);
 
         HttpResponse<JsonNode> batchHeaderRespone = Unirest
-                .post("http://172.16.47.3/SBProject/RubikonProxyRestService/BatchHeaderUpload")
+                .post("http://192.168.207.34:7101/SBProject/RubikonProxyRestService/BatchHeaderUpload")
+//                .post("http://172.16.47.3/SBProject/RubikonProxyRestService/BatchHeaderUpload")
                 .header("accept", "application/json")
                 .header("Content-Type", "application/json")
                 .body(jSONObject.toString())
                 .asJson();
         
-        System.out.println("AFTER API CALL ====  " + batchHeaderRespone.getBody().getObject().getJSONObject("Response"));
+        System.out.println("AFTER API CALL ====  " + batchHeaderRespone.getBody());
 
         System.out.println("GET TRANSACTION BATCH ID ======== Response Code = " + batchHeaderRespone.getStatus()
                 + " Description ==" + batchHeaderRespone.getStatusText()
@@ -363,6 +374,10 @@ public static int getTransactionBatchId() {
         BatchHeaderResponse headerResponse = new Gson().fromJson(batchHeaderRespone.getBody().getObject().getJSONObject("Response").toString(), BatchHeaderResponse.class);
         int transactionBatchId = headerResponse.getTransactionBatchId();
         System.out.println(transactionBatchId);
+        if(transactionBatchId == 0){
+            ++count;
+            getTransactionBatchId();
+        }
         return transactionBatchId;
     }
 
@@ -375,7 +390,8 @@ public static int getTransactionBatchId() {
         HttpResponse<JsonNode> batchItemRespone = null;
         try {
             batchItemRespone = Unirest
-                    .post("http://172.16.47.3/SBProject/RubikonProxyRestService/BatchItemUpload")
+                    .post("http://192.168.207.34:7101/SBProject/RubikonProxyRestService/BatchItemUpload")
+//                    .post("http://172.16.47.3/SBProject/RubikonProxyRestService/BatchItemUpload")
                     .header("accept", "application/json")
                     .header("Content-Type", "application/json")
                     .body(jSONObject)
